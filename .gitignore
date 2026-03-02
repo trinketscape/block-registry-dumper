@@ -1,0 +1,8 @@
+# Cargo
+/target
+
+# Generated block registry
+block_registry_out.json
+
+# Game source file
+Blocks.java
