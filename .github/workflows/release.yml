@@ -1,0 +1,60 @@
+name: Release 🏌️‍♀️
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            ext: ""
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            ext: ".exe"
+            archive: zip
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: ${{ matrix.target }}
+        override: true
+
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release --target ${{ matrix.target }}
+
+    - name: Package (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        mkdir dist
+        cp target/${{ matrix.target }}/release/block-registry-dumper dist/
+        tar -czf block-registry-dumper-${{ matrix.target }}.tar.gz -C dist .
+
+    - name: Package (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        mkdir dist
+        copy target\\${{ matrix.target }}\\release\\block-registry-dumper.exe dist\\
+        powershell Compress-Archive dist block-registry-dumper-${{ matrix.target }}.zip
+
+    - name: Publish release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          block-registry-dumper-${{ matrix.target }}.${{ matrix.archive }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
