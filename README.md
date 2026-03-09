@@ -1,4 +1,4 @@
-[# Block Registry Dumper 🦀
+# Block Registry Dumper 🦀
 
 This program uses `tree-sitter` to parse Minecraft's `Blocks.java` script and output block behaviour info that isn't available via the game's JSON files, VERY fast.
 
